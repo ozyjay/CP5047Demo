@@ -16,11 +16,38 @@ A simple Python application for tracking income, expenses, and calculating budge
 
 ### Usage
 
+#### Command-Line Interface
+
 Run the budget calculator:
 
 ```bash
 python3 budget_calculator.py
 ```
+
+#### Web Interface
+
+For a more user-friendly experience, you can use the web interface:
+
+1. Install dependencies:
+```bash
+pip install -r requirements.txt
+```
+
+2. Run the Flask web application:
+```bash
+python3 app.py
+```
+
+3. Open your browser and navigate to:
+```
+http://localhost:5000
+```
+
+The web interface provides:
+- Interactive dashboard with budget summary
+- Forms to add income, expenses, and set budget goals
+- Real-time data visualization
+- Easy-to-use clear data functionality with confirmation
 
 ### Available Commands
 
