@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Personal Budget Calculator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #f5f5f5;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        h1 {
+            color: #2c3e50;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        
+        .summary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 25px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+        }
+        
+        .summary h2 {
+            margin-bottom: 15px;
+            font-size: 1.5em;
+        }
+        
+        .totals {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+        
+        .total-item {
+            background-color: rgba(255,255,255,0.2);
+            padding: 15px;
+            border-radius: 5px;
+        }
+        
+        .total-item label {
+            font-size: 0.9em;
+            opacity: 0.9;
+        }
+        
+        .total-item .amount {
+            font-size: 1.8em;
+            font-weight: bold;
+            margin-top: 5px;
+        }
+        
+        .forms-section {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .form-card {
+            background-color: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            border: 1px solid #dee2e6;
+        }
+        
+        .form-card h3 {
+            color: #495057;
+            margin-bottom: 15px;
+            font-size: 1.2em;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            color: #495057;
+            font-weight: 500;
+        }
+        
+        .form-group input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ced4da;
+            border-radius: 4px;
+            font-size: 1em;
+        }
+        
+        .form-group input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+        
+        .btn {
+            background-color: #667eea;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 1em;
+            width: 100%;
+            transition: background-color 0.2s;
+        }
+        
+        .btn:hover {
+            background-color: #5568d3;
+        }
+        
+        .btn-danger {
+            background-color: #dc3545;
+        }
+        
+        .btn-danger:hover {
+            background-color: #c82333;
+        }
+        
+        .flash-messages {
+            margin-bottom: 20px;
+        }
+        
+        .alert {
+            padding: 12px 20px;
+            border-radius: 4px;
+            margin-bottom: 10px;
+        }
+        
+        .alert-success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .alert-error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        
+        .data-section {
+            margin-top: 30px;
+        }
+        
+        .data-section h3 {
+            color: #2c3e50;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #667eea;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 30px;
+        }
+        
+        table th {
+            background-color: #667eea;
+            color: white;
+            padding: 12px;
+            text-align: left;
+            font-weight: 500;
+        }
+        
+        table td {
+            padding: 12px;
+            border-bottom: 1px solid #dee2e6;
+        }
+        
+        table tr:hover {
+            background-color: #f8f9fa;
+        }
+        
+        .status-ok {
+            color: #28a745;
+            font-weight: 500;
+        }
+        
+        .status-over {
+            color: #dc3545;
+            font-weight: 500;
+        }
+        
+        .clear-section {
+            background-color: #fff3cd;
+            border: 1px solid #ffc107;
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 30px;
+        }
+        
+        .clear-section h3 {
+            color: #856404;
+            margin-bottom: 10px;
+        }
+        
+        .clear-section p {
+            color: #856404;
+            margin-bottom: 15px;
+        }
+        
+        .clear-section small {
+            display: block;
+            margin-top: 10px;
+            color: #856404;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>💰 Personal Budget Calculator</h1>
+        
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="flash-messages">
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ category }}">{{ message }}</div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+        
+        <div class="summary">
+            <h2>Budget Summary</h2>
+            <div class="totals">
+                <div class="total-item">
+                    <label>Total Income</label>
+                    <div class="amount">${{ "%.2f"|format(total_income) }}</div>
+                </div>
+                <div class="total-item">
+                    <label>Total Expenses</label>
+                    <div class="amount">${{ "%.2f"|format(total_expenses) }}</div>
+                </div>
+                <div class="total-item">
+                    <label>Net Amount</label>
+                    <div class="amount">${{ "%.2f"|format(net_amount) }}</div>
+                </div>
+            </div>
+            <div style="margin-top: 15px; font-size: 1.1em;">
+                {% if net_amount >= 0 %}
+                    ✅ You're within budget!
+                {% else %}
+                    ⚠️ You're over budget!
+                {% endif %}
+            </div>
+        </div>
+        
+        <div class="forms-section">
+            <div class="form-card">
+                <h3>Add Income</h3>
+                <form method="POST" action="{{ url_for('add_income') }}">
+                    <div class="form-group">
+                        <label for="income-amount">Amount *</label>
+                        <input type="number" step="0.01" id="income-amount" name="amount" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="income-description">Description</label>
+                        <input type="text" id="income-description" name="description">
+                    </div>
+                    <div class="form-group">
+                        <label for="income-category">Category</label>
+                        <input type="text" id="income-category" name="category" placeholder="salary">
+                    </div>
+                    <button type="submit" class="btn">Add Income</button>
+                </form>
+            </div>
+            
+            <div class="form-card">
+                <h3>Add Expense</h3>
+                <form method="POST" action="{{ url_for('add_expense') }}">
+                    <div class="form-group">
+                        <label for="expense-amount">Amount *</label>
+                        <input type="number" step="0.01" id="expense-amount" name="amount" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="expense-description">Description</label>
+                        <input type="text" id="expense-description" name="description">
+                    </div>
+                    <div class="form-group">
+                        <label for="expense-category">Category</label>
+                        <input type="text" id="expense-category" name="category" placeholder="general">
+                    </div>
+                    <button type="submit" class="btn">Add Expense</button>
+                </form>
+            </div>
+            
+            <div class="form-card">
+                <h3>Set Budget Goal</h3>
+                <form method="POST" action="{{ url_for('set_goal') }}">
+                    <div class="form-group">
+                        <label for="goal-category">Category *</label>
+                        <input type="text" id="goal-category" name="category" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="goal-amount">Goal Amount *</label>
+                        <input type="number" step="0.01" id="goal-amount" name="amount" required>
+                    </div>
+                    <button type="submit" class="btn">Set Goal</button>
+                </form>
+            </div>
+        </div>
+        
+        {% if expenses_by_category %}
+        <div class="data-section">
+            <h3>Expenses by Category</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Category</th>
+                        <th>Amount</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for category, amount in expenses_by_category.items()|sort %}
+                    <tr>
+                        <td>{{ category.capitalize() }}</td>
+                        <td>${{ "%.2f"|format(amount) }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% endif %}
+        
+        {% if goal_status %}
+        <div class="data-section">
+            <h3>Budget Goal Status</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Category</th>
+                        <th>Spent</th>
+                        <th>Goal</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for category, status in goal_status.items()|sort %}
+                    <tr>
+                        <td>{{ category.capitalize() }}</td>
+                        <td>${{ "%.2f"|format(status.spent) }}</td>
+                        <td>${{ "%.2f"|format(status.goal) }}</td>
+                        <td>
+                            {% if status.over_budget %}
+                                <span class="status-over">⚠️ Over by ${{ "%.2f"|format(status.remaining|abs) }}</span>
+                            {% else %}
+                                <span class="status-ok">✅ ${{ "%.2f"|format(status.remaining) }} remaining</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% endif %}
+        
+        <div class="clear-section">
+            <h3>⚠️ Clear All Data</h3>
+            <p>This will permanently delete all income, expenses, and budget goals.</p>
+            <form method="POST" action="{{ url_for('clear_data') }}">
+                <div class="form-group">
+                    <label for="confirm">Type "CLEAR" to confirm</label>
+                    <input type="text" id="confirm" name="confirm" required>
+                </div>
+                <button type="submit" class="btn btn-danger">Clear All Data</button>
+                <small>This action cannot be undone!</small>
+            </form>
+        </div>
+    </div>
+</body>
+</html>
